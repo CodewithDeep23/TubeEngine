@@ -1,9 +1,5 @@
 import { v2 as cloudinary } from "cloudinary"
-import fs, { existsSync } from "fs"
-
-
-import { v2 as cloudinary } from 'cloudinary';
-import { response } from "express";
+import fs from "fs"
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -22,7 +18,9 @@ const uploadOnCloudinary = async (localFilepath) => {
             }
         )
 
-        console.log("File is uploaded on cloudinary", response.url);
+        // console.log("File is uploaded on cloudinary", response.url);
+        // console.log(response);
+        fs.unlinkSync(localFilepath)
         return response
     } catch (error) {
         console.log("Error:", error);

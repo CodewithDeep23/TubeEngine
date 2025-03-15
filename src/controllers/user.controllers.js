@@ -26,7 +26,7 @@ const registerUser = asyncHandler( async (req, res) => {
     }
 
     // Check users already exists: Username or Email
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or: [{username}, {email}]
     })
 
@@ -34,10 +34,17 @@ const registerUser = asyncHandler( async (req, res) => {
         throw new apiError(409, "User with username or email already exists")
     }
 
+    // console.log(req.files);
     // Check for images, check for avatar
     // req.files: use optionaly for better practice 
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path;
+
+    // check if the files are arrived or not
+    let coverImageLocalPath;
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){
+        coverImageLocalPath = req.files?.coverImage[0]?.path;
+    }
 
     if(!avatarLocalPath){
         throw new apiError(400, "Avatar file is required")
