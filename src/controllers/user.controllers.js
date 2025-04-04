@@ -240,9 +240,77 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 })
 
+
+// Change Password
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+    const {oldPassword, newPassword} = req.body
+
+    // Check for user
+    const user = await User.findById(req.user._id)
+
+    // Check for password
+    const isPasswordValid = await user.isPasswordCorrect(oldPassword)
+
+    if(!isPasswordValid){
+        throw new apiError(401, "Old password is incorrect")
+    }
+
+    // Update password
+    user.password = newPassword
+    await user.save({validateBeforeSave: false})
+
+    return res
+    .status(200)
+    .json(
+        new apiResponse(200, {}, "Password updated successfully")
+    )
+})
+
+
+// Current User
+const currentUser = asyncHandler(async (req, res) => {
+    return res
+    .status(200)
+    .json(
+        new apiResponse(200, req.user, "User found successfully")
+    )
+})
+
+// Update account details
+const updateAccountDetails = asyncHandler(async (req, res) => {
+    const {fullName, newEmail, newUsername} = req.body
+
+    // check for empty fields
+    if(!fullName || !newEmail || !newUsername){
+        throw new apiError(400, "All fields are required")
+    }
+
+    // Check for user and update
+    const user = await User.findByIdAndDelete(
+        req.user._id,
+        {
+            $set: {
+                fullName,
+                email: newEmail,
+                username: newUsername.toLowerCase()
+            }
+        },
+        {new: true}
+    ).select("-password")
+
+    return res
+    .status(200)
+    .json(
+        new apiResponse(200, user, "Account details updated successfully")
+    )
+})
+
 export {
     registerUser, 
     loginUser,
     logoutUser,
-    refreshAccessToken
+    refreshAccessToken,
+    changeCurrentPassword,
+    currentUser,
+    updateAccountDetails
 }
