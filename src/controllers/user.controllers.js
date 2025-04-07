@@ -4,6 +4,7 @@ import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { apiResponse } from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken"
+import { deleteOldImagesFromCloudinary, getPublicIdFromUrl } from "../utils/deleteOldCloudinaryFile.js";
 
 const generateAccessAndRefreshToken = async (userId) => {
     try {
@@ -313,6 +314,10 @@ const avatarUpload = asyncHandler(async (req, res) => {
         throw new apiError(400, "Avatar image is missing")
     }
 
+    // check for old avatar image
+    const oldAvatar = await User.findById(req.user?._id).select("avatar -_id")
+    console.log(oldAvatar.avatar);
+
     // Upload to cloudinary
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     if(!avatar.url){
@@ -329,6 +334,12 @@ const avatarUpload = asyncHandler(async (req, res) => {
         },
         {new: true}
     ).select("-password")
+
+    // delete old avatar image from cloudinary
+    if (oldAvatar.avatar) {
+        const oldPublicId = getPublicIdFromUrl(oldAvatar.avatar);
+        await deleteOldImagesFromCloudinary(oldPublicId);
+    }
 
     return res
     .status(200)
