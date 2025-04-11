@@ -380,6 +380,81 @@ const coverImageUpload = asyncHandler(async (req, res) => {
     )
 })
 
+// get user channel profile
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+    // get username from req.params (url)
+    const {username} = req.params
+
+    if(!username?.trim()){
+        throw new apiError(400, "Username is missing")
+    }
+
+    // first find user and join with channel
+    const channel = await User.aggregate([
+        {
+            $match: {
+                username: username?.toLowerCase()
+            }
+        },
+        // basically we find out user, now we check how many subscribers you have?
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "channel",
+                as: "subscribers"
+            }
+        },
+        // Now we check, How many channel are you subscribed to?
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "subcriber",
+                as: "subscribedTo"
+            }
+        },
+        {
+            $addFields: {
+                subscribersCount: { $size: "$subscribers" },
+                channelsSubscribedToCount: { $size: "$subscribedTo" },
+                // check you subscribed to this channel or not
+                isSubscribed: {
+                    $cond: {
+                        if: {$in: [req.user?._id, "$subscribers.subscriber"]},
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        },
+        // remove unwanted fields
+        {
+            $project: {
+                fullName: 1,
+                username: 1,
+                avatar: 1,
+                coverImage: 1,
+                subscribersCount: 1,
+                channelsSubscribedToCount: 1,
+                isSubscribed: 1,
+                email: 1
+            }
+        }
+    ])
+
+    // check if channel is found or not
+    if(!channel?.length){
+        throw new apiError(404, "Channel not found")
+    }
+    
+    return res
+    .status(200)
+    .json(
+        new apiResponse(200, channel[0], "User channel profile found successfully")
+    )
+})
+
 export {
     registerUser, 
     loginUser,
@@ -389,5 +464,6 @@ export {
     currentUser,
     updateAccountDetails,
     avatarUpload,
-    coverImageUpload
+    coverImageUpload,
+    getUserChannelProfile
 }
