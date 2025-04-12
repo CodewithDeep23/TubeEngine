@@ -1,6 +1,17 @@
 import { Router } from "express";
-import { loginUser, logoutUser, registerUser, refreshAccessToken, avatarUpload } from "../controllers/user.controllers.js";
-import {upload} from "../middlewares/multer.middleware.js"
+import { 
+    loginUser, 
+    logoutUser, 
+    registerUser, 
+    refreshAccessToken, 
+    avatarUpload, 
+    changeCurrentPassword, 
+    currentUser, 
+    updateAccountDetails, 
+    coverImageUpload, 
+    getUserChannelProfile, 
+    getWatchHistory } from "../controllers/user.controllers.js";
+import { upload } from "../middlewares/multer.middleware.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router()
@@ -24,6 +35,12 @@ router.route("/login").post(loginUser)
 // Secured route
 router.route("/logout").post(verifyJWT, logoutUser)
 router.route("/refresh-token").post(refreshAccessToken)
-router.route("/avatar").post(verifyJWT, upload.single("avatar"), avatarUpload)
+router.route("/change-password").post(verifyJWT, changeCurrentPassword)
+router.route("/current-user").get(verifyJWT, currentUser)
+router.route("/update-account").patch(verifyJWT, updateAccountDetails)
+router.route("/avatar").patch(verifyJWT, upload.single("avatar"), avatarUpload)
+router.route("/cover-image").patch(verifyJWT, upload.single("converImage"), coverImageUpload)
+router.route("/c/:username").get(verifyJWT, getUserChannelProfile)
+router.route("/history").get(verifyJWT, getWatchHistory)
 
 export default router
