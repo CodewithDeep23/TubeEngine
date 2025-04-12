@@ -287,7 +287,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     }
 
     // Check for user and update
-    const user = await User.findByIdAndDelete(
+    const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set: {
