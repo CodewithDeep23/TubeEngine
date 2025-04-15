@@ -9,11 +9,10 @@ cloudinary.config({
 
 const getPublicIdFromUrl = (url) => {
     const parts = url.split('/');
-    const versionIndex = parts.findIndex(part => part.startsWith('v'));
-    const publicIdParts = parts.slice(versionIndex + 1);
-    const lastSegment = publicIdParts.join('/');
-    return lastSegment.replace(/\.[^/.]+$/, ''); // removes .jpg, .png etc.
-  };
+    const filename = parts.pop(); // e.g., qrlrauildq8itlkphbvc.mp4
+    const publicId = filename.split('.')[0]; // remove .mp4
+    return publicId;
+};
   
 
 const deleteOldImagesFromCloudinary = async (public_id) => {
