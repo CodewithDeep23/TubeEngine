@@ -16,7 +16,11 @@ const likeSchema = new mongoose.Schema({
     tweet: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Tweet",
-    }
+    },
+    liked: {
+        type: Boolean,
+        default: true,
+    },
 }, { timestamps: true })
 
 export const Like = mongoose.model("Like", likeSchema)
