@@ -338,7 +338,7 @@ const avatarUpload = asyncHandler(async (req, res) => {
 
     // delete old avatar image from cloudinary
     if (oldAvatar.avatar) {
-        const oldPublicId = getPublicIdFromUrl(oldAvatar.avatar);
+        const oldPublicId = await getPublicIdFromUrl(oldAvatar.avatar);
         await deleteOldImagesFromCloudinary(oldPublicId);
     }
 
