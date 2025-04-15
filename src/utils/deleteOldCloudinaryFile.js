@@ -7,6 +7,13 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// const getPublicIdFromUrl = (url) => {
+//     const parts = url.split('/');
+//     const versionIndex = parts.findIndex(part => part.startsWith('v'));
+//     const publicIdParts = parts.slice(versionIndex + 1);
+//     const lastSegment = publicIdParts.join('/');
+//     return lastSegment.replace(/\.[^/.]+$/, ''); // removes .jpg, .png etc.
+//   };
 const getPublicIdFromUrl = (url) => {
     const parts = url.split('/');
     const filename = parts.pop(); // e.g., qrlrauildq8itlkphbvc.mp4
@@ -31,4 +38,21 @@ const deleteOldImagesFromCloudinary = async (public_id) => {
     
 }
 
-export { deleteOldImagesFromCloudinary, getPublicIdFromUrl }
+// delete old video from cloudinary
+const deleteOldVideoFromCloudinary = async (public_id) => {
+    try {
+        if(!public_id) return null
+
+        const response = await cloudinary.uploader.destroy(public_id, {
+            resource_type: "video"
+        })
+
+        return response
+
+    } catch (error) {
+        console.log("Error:", error);
+        return null
+    }
+}
+
+export { deleteOldImagesFromCloudinary, getPublicIdFromUrl, deleteOldVideoFromCloudinary }
