@@ -13,7 +13,7 @@ const videoSchema = new mongoose.Schema({
     },
     thumbnail: {
         type: String,  // cloudinary
-        index: true
+        required: true
     },
     title: {
         type: String,
