@@ -363,7 +363,7 @@ const getVideoById = asyncHandler(async (req, res) => {
     ])
 
     if (!video.length > 0) {
-        new apiError(200, "video is not found")
+        throw new apiError(200, "video is not found")
     }
 
     return res
@@ -380,18 +380,18 @@ const updateVideo = asyncHandler(async (req, res) => {
 
     // Check validation
     if(!isValidObjectId(videoId)){
-        new apiError(200, "Invalid Video Id")
+        throw new apiError(200, "Invalid Video Id")
     }
     
     if(!(title && description)){
-        new apiError(400, "Title and Descripition fields are required")
+        throw new apiError(400, "Title and Descripition fields are required")
     }
     
     // console.log("req.files",req.file);
     const thumbnailLocalFilePath = req.file?.path
     // console.log("thumbnailLocalFilePath: ", thumbnailLocalFilePath);
     if(!thumbnailLocalFilePath){
-        new apiError(400, "Thumbnail file not found")
+        throw new apiError(400, "Thumbnail file not found")
     }
 
     // check owner of the video
@@ -399,12 +399,12 @@ const updateVideo = asyncHandler(async (req, res) => {
     console.log("video: ",video);
     
     if(!video){
-        new apiError(400, "Video not found")
+        throw new apiError(400, "Video not found")
     }
 
     // Only owner can update the video
     if(video.owner.toString() !== req.user._id.toString()){
-        new apiError(403, "You are not authorized to update this video")
+        throw new apiError(403, "You are not authorized to update this video")
     }
 
     // old thumbnail cloudinary path
@@ -415,7 +415,7 @@ const updateVideo = asyncHandler(async (req, res) => {
     const thumbnailFile = await uploadOnCloudinary(thumbnailLocalFilePath)
 
     if(!thumbnailFile){
-        new apiError(500, "Error while uploading thumbnail file")
+        throw new apiError(500, "Error while uploading thumbnail file")
     }
     
     // update video
@@ -432,13 +432,13 @@ const updateVideo = asyncHandler(async (req, res) => {
     )
 
     if(!updatedVideo){
-        new apiError(500, "Error while updating video")
+        throw new apiError(500, "Error while updating video")
     }
     
     // delete old thumbnail from cloudinary
     const deleteOldThumbnail = await deleteOldImagesFromCloudinary(oldThumbnailPublicId)
     if(!deleteOldThumbnail){
-        new apiError(500, "Error while deleting old thumbnail")
+        throw new apiError(500, "Error while deleting old thumbnail")
     }
 
     return res
