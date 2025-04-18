@@ -6,6 +6,9 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import mongoose, { isValidObjectId } from "mongoose";
 import { stopWords } from "../utils/helperData.js"
 import { deleteOldImagesFromCloudinary, deleteOldVideoFromCloudinary, getPublicIdFromUrl } from "../utils/deleteOldCloudinaryFile.js";
+import { Like } from "../models/likes.models.js";
+import { Comment } from "../models/comments.models.js";
+import { Playlist } from "../models/playlist.models.js";
 
 // get all video
 const getAllVideos = asyncHandler(async (req, res) => {
@@ -448,9 +451,88 @@ const updateVideo = asyncHandler(async (req, res) => {
     )
 })
 
+// delete video
+const deleteVideo = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+
+    if(!isValidObjectId(videoId)){
+        throw new apiError(400, "Invalid Video Id")
+    }
+
+    const video = await Video.findById(videoId)
+    // console.log("video: ", video);
+    if(!video){
+        throw new apiError(400, "Video is not found")
+    }
+
+    // only owner can delete the video
+    if(video.owner.toString() !== req.user._id.toString()){
+        throw new apiError(403, "You are not authorized to delete this video")
+    }
+
+    // delete the video
+    const videoRes = await Video.findByIdAndDelete(video?._id)
+
+    if(!videoRes){
+        throw new apiError(400, "Video is not found")
+    }
+    console.log("videoRes: ", videoRes);
+
+
+    // delete video from cloudinary
+    const videoPublicId = await getPublicIdFromUrl(video.videoFile)
+    const thumbnailPublicId = await getPublicIdFromUrl(video.thumbnail)
+    // console.log("videoPublicId: ", videoPublicId);
+    // console.log("thumbnailPublicId: ", thumbnailPublicId);
+
+    await deleteOldVideoFromCloudinary(videoPublicId)
+    await deleteOldImagesFromCloudinary(thumbnailPublicId)
+
+    // delete videos likes and dislikes
+    const deleteVideoLikes = await Like.deleteMany({ 
+        video: new mongoose.Types.ObjectId(videoId) 
+    })
+    // console.log("deleteVideoLikes: ", deleteVideoLikes);
+
+    // Find video comments
+    const videoComments = await Comment.find({
+        video: new mongoose.Types.ObjectId(videoId)
+    })
+    // console.log("videoComments: ", videoComments);
+
+    const commentsIds = videoComments.map(comment => comment._id)
+    // console.log("commentsIds: ", commentsIds);
+
+    // delete comments likes and dislikes
+    const deleteCommentsLikes = await Like.deleteMany({
+        comment: { $in: commentsIds }
+    })
+    // console.log("deleteCommentsLikes: ", deleteCommentsLikes);
+
+    // delete video comments
+    const deleteVideoComments = await Comment.deleteMany({
+        video: new mongoose.Types.ObjectId(videoId)
+    })
+    // console.log("deleteVideoComments: ", deleteVideoComments);
+
+    // delete video from playlist
+    const deleteVideoFromPlaylist = await Playlist.updateMany(
+        {},
+        { $pull: { videos: new mongoose.Types.ObjectId(videoId) } }
+    )  
+    // console.log("deleteVideoFromPlaylist: ", deleteVideoFromPlaylist);
+
+    return res
+    .status(200)
+    .json(
+        new apiResponse(200, [], "Video deleted successfully")
+    )
+})
+
 export {
     getAllVideos,
     publishAVideo,
     getVideoById,
-    updateVideo
+    updateVideo,
+    deleteVideo
 }
