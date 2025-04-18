@@ -529,10 +529,46 @@ const deleteVideo = asyncHandler(async (req, res) => {
     )
 })
 
+// toggle publish status
+const togglePublishStatus = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+
+    if(!isValidObjectId(videoId)){
+        throw new apiError(400, "Invalid Video Id")
+    }
+
+    const video = await Video.findById(videoId)
+
+    if(!video){
+        throw new apiError(400, "Video is not found")
+    }
+
+    if(video.owner.toString() !== req.user._id.toString()){
+        throw new apiError(403, "You can't toogle publish status as you are not the owner")
+    }
+
+    video.isPublished = !video.isPublished
+    const updatedVideo = await video.save()
+    if(!updatedVideo){
+        throw new apiError(500, "Error while toggling publish status")
+    }
+    console.log("updatedVideo: ", updatedVideo);
+
+    return res
+    .status(200)
+    .json(
+        new apiResponse(
+            200, 
+            {isPublished: updatedVideo.isPublished}, 
+            "Video publish status toggled successfully")
+    )
+})
+
 export {
     getAllVideos,
     publishAVideo,
     getVideoById,
     updateVideo,
-    deleteVideo
+    deleteVideo,
+    togglePublishStatus
 }
