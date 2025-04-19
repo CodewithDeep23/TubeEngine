@@ -49,4 +49,94 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     )
 })
 
-export { toggleSubscription }
+// controller to return subscriber list of a channel
+const getUserChannelSubscribers = asyncHandler(async (req, res) => {
+    const {channelId} = req.params
+    console.log("channelId param:", req.params.channelId);
+
+    if(!isValidObjectId(channelId)) {
+        throw new apiError(400, "Invalid channel ID")
+    }
+
+    const subscribersList = await Subscription.aggregate([
+        {
+            $match: {
+                channel: new mongoose.Types.ObjectId(channelId),
+            }
+        },
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "channel",
+                foreignField: "subscriber",
+                as: "subscribedChannel",
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "subscriber",
+                foreignField: "_id",
+                as: "subscriber",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "subscriptions",
+                            localField: "_id",
+                            foreignField: "channel",
+                            as: "subscribersSubscribers",
+                        }
+                    },
+                    {
+                        $project: {
+                            username: 1,
+                            avatar: 1,
+                            fullName: 1,
+                            subscribersCount: {
+                                $size: "$subscribersSubscribers",
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $unwind: {
+                path: "$subscriber",
+                preserveNullAndEmptyArrays: true,
+            }
+        },
+        {
+            $addFields: {
+                "subscriber.isSubscribed": {
+                    $cond: {
+                        if: { $in: ["$subscriber._id", "$subscribedChannel.channel"] },
+                        then: true,
+                        else: false,
+                    }
+                }
+            }
+        },
+        {
+            $group: {
+                _id: "channel",
+                subscriber: { $push: "$subscriber" },
+            }
+        }
+    ])
+
+    const subscribersCount = subscribersList?.length > 0 ? subscribersList[0].subscriber : []
+
+    return res
+    .status(200)
+    .json(
+        new apiResponse(
+            200,
+            subscribersCount,
+            "Successfully fetched subscribers list",
+        )
+    )
+
+})
+
+export { toggleSubscription, getUserChannelSubscribers }
