@@ -16,20 +16,20 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 
     let isSubscribed;
     const subscription = await Subscription.findOne({
-        subcriber: req.user?._id,
+        subscriber: req.user?._id,
         channel: channelId
     })
 
     if(subscription) {
         const res = await Subscription.deleteOne({
-            subcriber: req.user?._id,
+            subscriber: req.user?._id,
             channel: channelId
         })
         isSubscribed = false
     }
     else {
         const newSubscription = await Subscription.create({
-            subcriber: req.user?._id,
+            subscriber: req.user?._id,
             channel: channelId
         })
         if(!newSubscription) {
