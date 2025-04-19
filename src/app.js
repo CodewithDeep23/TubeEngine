@@ -19,11 +19,15 @@ app.use(cookieParser())
 import userRouter from './routes/user.routes.js'
 import videoRouter from './routes/video.routes.js'
 import subscriptionRouter from './routes/subscription.routes.js'
+import likeRouter from './routes/like.routes.js'
+import commentRouter from './routes/comment.routes.js'
 
 // routes declaration
 app.use("/api/v2/users", userRouter)
 app.use("/api/v2/videos", videoRouter)
 app.use("/api/v2/subscriptions", subscriptionRouter)
+app.use("/api/v2/likes", likeRouter)
+app.use("/api/v2/comments", commentRouter)
 
 // http://localhost:8000/api/v2/user/register
 
