@@ -26,7 +26,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
         throw new apiError(404, "No video found for this video ID")
     }
 
-    const comments = await Comment.aggregate([
+    const comments = Comment.aggregate([
         {
             $match: {
                 video: new mongoose.Types.ObjectId(videoId)
@@ -166,7 +166,6 @@ const getVideoComments = asyncHandler(async (req, res) => {
 
     // Send paginated comments
     const paginatedComments = await Comment.aggregatePaginate(comments, options)
-    
 
     return res
         .status(200)
