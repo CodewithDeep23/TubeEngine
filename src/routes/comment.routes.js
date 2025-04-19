@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { checkUser } from "../routes/public.routes.js";
+import { checkUser } from "../middlewares/public.middleware.js";
 import {
   getVideoComments,
   addComment,
