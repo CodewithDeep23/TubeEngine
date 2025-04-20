@@ -21,6 +21,8 @@ import videoRouter from './routes/video.routes.js'
 import subscriptionRouter from './routes/subscription.routes.js'
 import likeRouter from './routes/like.routes.js'
 import commentRouter from './routes/comment.routes.js'
+import playlistRouter from './routes/playlist.routes.js'
+import tweetRouter from './routes/tweets.routes.js'
 
 // routes declaration
 app.use("/api/v2/users", userRouter)
