@@ -28,6 +28,8 @@ app.use("/api/v2/videos", videoRouter)
 app.use("/api/v2/subscriptions", subscriptionRouter)
 app.use("/api/v2/likes", likeRouter)
 app.use("/api/v2/comments", commentRouter)
+app.use("/api/v2/playlists", playlistRouter)
+app.use("/api/v2/tweets", tweetRouter)
 
 // http://localhost:8000/api/v2/user/register
 
