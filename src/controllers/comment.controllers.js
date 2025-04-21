@@ -54,7 +54,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
                         $group: {
                             _id: "liked",
                             owners: {
-                                $push: "$likedBy"
+                                $push: "$likedby"
                             },
                         }
                     }
@@ -78,7 +78,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
                         $group: {
                             _id: "liked",
                             owners: {
-                                $push: "$likedBy"
+                                $push: "$likedby"
                             },
                         }
                     }

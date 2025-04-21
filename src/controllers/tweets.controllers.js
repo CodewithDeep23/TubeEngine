@@ -109,7 +109,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
                     {
                         $group: {
                             _id: "liked",
-                            owners: { $push: "$likedBy" }
+                            owners: { $push: "$likedby" }
                         }
                     }
                 ]
@@ -130,7 +130,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
                     {
                         $group: {
                             _id: "liked",
-                            owners: { $push: "$likedBy" }
+                            owners: { $push: "$likedby" }
                         }
                     }
                 ]
@@ -327,7 +327,7 @@ const getAllUserFeedTweets = asyncHandler(async (req, res) => {
                     {
                         $group: {
                             _id: "liked",
-                            owners: { $push: "$likedBy" },
+                            owners: { $push: "$likedby" },
                         },
                     },
                 ],
@@ -348,7 +348,7 @@ const getAllUserFeedTweets = asyncHandler(async (req, res) => {
                     {
                         $group: {
                             _id: "liked",
-                            owners: { $push: "$likedBy" },
+                            owners: { $push: "$likedby" },
                         },
                     },
                 ],
