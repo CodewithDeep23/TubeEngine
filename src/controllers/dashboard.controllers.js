@@ -1,8 +1,6 @@
 import mongoose from "mongoose"
 import { Video } from "../models/video.models.js"
 import { Subscription } from "../models/subscriptions.models.js"
-import { Like } from "../models/likes.models.js"
-import { apiError } from "../utils/apiError.js"
 import { apiResponse } from "../utils/apiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 

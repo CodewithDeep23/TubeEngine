@@ -24,6 +24,7 @@ import commentRouter from './routes/comment.routes.js'
 import playlistRouter from './routes/playlist.routes.js'
 import tweetRouter from './routes/tweets.routes.js'
 import dashboardRouter from './routes/dashboard.routes.js'
+import healthcheckRouter from './routes/healtcheck.routes.js'
 
 // routes declaration
 app.use("/api/v2/users", userRouter)
@@ -34,6 +35,7 @@ app.use("/api/v2/comments", commentRouter)
 app.use("/api/v2/playlists", playlistRouter)
 app.use("/api/v2/tweets", tweetRouter)
 app.use("/api/v2/dashboard", dashboardRouter)
+app.use("/api/v2/healthcheck", healthcheckRouter)
 
 // http://localhost:8000/api/v2/user/register
 
