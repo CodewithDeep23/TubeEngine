@@ -94,6 +94,6 @@
 
 Thanks to all my instructors.
 
-## 📝 License
+## 📝 Credits & Acknowledgments
 
 This project is inspired by the tutorials from [ChaiAurCode](https://www.youtube.com/@chaiaurcode). Big thanks for the valuable content and guidence.
