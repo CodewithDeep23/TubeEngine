@@ -438,6 +438,38 @@ const updatePlaylist = asyncHandler(async (req, res) => {
     )
 })
 
+// TODO: get video Save playlist
+const getVideoSavePlaylists = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+  
+    if (!isValidObjectId(videoId))
+      throw new apiError(400, "Valid videoId required");
+  
+    const playlists = await Playlist.aggregate([
+      {
+        $match: {
+          owner: new mongoose.Types.ObjectId(req.user?._id),
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          isVideoPresent: {
+            $cond: {
+              if: { $in: [new mongoose.Types.ObjectId(videoId), "$videos"] },
+              then: true,
+              else: false,
+            },
+          },
+        },
+      },
+    ]);
+  
+    return res
+      .status(200)
+      .json(new apiResponse(200, playlists, "Playlists sent successfully"));
+});
+
 export {
     createPlaylist,
     getUserPlaylists,
@@ -445,5 +477,6 @@ export {
     addVideoToPlaylist,
     removeVideoFromPlaylist,
     deletePlaylist,
-    updatePlaylist
+    updatePlaylist,
+    getVideoSavePlaylists
 }
