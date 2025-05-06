@@ -511,6 +511,24 @@ const getWatchHistory = asyncHandler(async (req, res) => {
     )
 })
 
+// Delete watch history
+const clearWatchHistory = asyncHandler(async (req, res) => {
+    const user = await User.findByIdAndUpdate(req.user._id, {
+        $set: { watchHistory: [] }
+    }, { new: true });
+
+    if (!user) throw new apiError(400, "User not found");
+
+    return res
+    .status(200)
+    .json(
+        200,
+        user?.watchHistory,
+        "Watched History deleted successfully!"
+    );
+});
+
+
 export {
     registerUser, 
     loginUser,
@@ -522,5 +540,6 @@ export {
     avatarUpload,
     coverImageUpload,
     getUserChannelProfile,
-    getWatchHistory
+    getWatchHistory,
+    clearWatchHistory
 }
