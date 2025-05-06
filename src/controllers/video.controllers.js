@@ -9,6 +9,7 @@ import { deleteOldImagesFromCloudinary, deleteOldVideoFromCloudinary, getPublicI
 import { Like } from "../models/likes.models.js";
 import { Comment } from "../models/comments.models.js";
 import { Playlist } from "../models/playlist.models.js";
+import { User } from "../models/user.models.js";
 
 // get all video
 const getAllVideos = asyncHandler(async (req, res) => {
@@ -577,19 +578,35 @@ const updateView = asyncHandler(async (req, res) => {
     if (!updatedVideo) throw new apiError(400, "Error occurred on updating view");
   
     let watchHistory;
+    // if (req.user) {
+    //   watchHistory = await User.findByIdAndUpdate(
+    //     req.user?._id,
+    //     {
+    //       $push: {
+    //         watchHistory: new mongoose.Types.ObjectId(videoId),
+    //       },
+    //     },
+    //     {
+    //       new: true,
+    //     }
+    //   );
+    // }
+
     if (req.user) {
-      watchHistory = await User.findByIdAndUpdate(
-        req.user?._id,
-        {
+        await User.findByIdAndUpdate(req.user._id, {
+          $pull: { watchHistory: video._id },
+        });
+      
+        await User.findByIdAndUpdate(req.user._id, {
           $push: {
-            watchHistory: new mongoose.Types.ObjectId(videoId),
+            watchHistory: {
+              $each: [video._id],
+              $position: 0,
+            },
           },
-        },
-        {
-          new: true,
-        }
-      );
+        });
     }
+      
   
     return res
       .status(200)
@@ -598,6 +615,142 @@ const updateView = asyncHandler(async (req, res) => {
           200,
           { isSuccess: true, views: updatedVideo.views, watchHistory },
           "Video views updated successfully"
+        )
+      );
+  });
+
+export const getAllVideosByOption = asyncHandler(async (req, res) => {
+    const {
+      page = 1,
+      limit = 10,
+      search = "",
+      sortBy,
+      sortType = "video",
+      order,
+      userId,
+    } = req.query;
+  
+    // filter video by given filters
+    let filters = { isPublished: true };
+    if (isValidObjectId(userId))
+      filters.owner = new mongoose.Types.ObjectId(userId);
+  
+    let pipeline = [
+      {
+        $match: {
+          ...filters,
+        },
+      },
+    ];
+  
+    const sort = {};
+  
+    // if query is given filter the videos
+    if (search) {
+      const queryWords = search
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .split(" ");
+      const filteredWords = queryWords.filter(
+        (word) => !stopWords.includes(word)
+      );
+  
+      console.log("search: ", search);
+      console.log("filteredWords: ", filteredWords);
+  
+      pipeline.push({
+        $addFields: {
+          titleMatchWordCount: {
+            $size: {
+              $filter: {
+                input: filteredWords,
+                as: "word",
+                cond: {
+                  $in: ["$$word", { $split: [{ $toLower: "$title" }, " "] }],
+                },
+              },
+            },
+          },
+        },
+      });
+  
+      pipeline.push({
+        $addFields: {
+          descriptionMatchWordCount: {
+            $size: {
+              $filter: {
+                input: filteredWords,
+                as: "word",
+                cond: {
+                  $in: [
+                    "$$word",
+                    { $split: [{ $toLower: "$description" }, " "] },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      });
+  
+      sort.titleMatchWordCount = -1;
+    }
+  
+    // sort the documents
+    if (sortBy) {
+      sort[sortBy] = parseInt(order);
+    } else if (!search && !sortBy) {
+      sort["createdAt"] = -1;
+    }
+  
+    pipeline.push({
+      $sort: {
+        ...sort,
+      },
+    });
+  
+    // fetch owner detail
+    pipeline.push(
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "owner",
+          pipeline: [
+            {
+              $project: {
+                username: 1,
+                fullName: 1,
+                avatar: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $unwind: "$owner",
+      }
+    );
+    const videoAggregate = Video.aggregate(pipeline);
+  
+    const options = {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+    };
+  
+    const allVideos = await Video.aggregatePaginate(videoAggregate, options);
+  
+    const { docs, ...pagingInfo } = allVideos;
+  
+    return res
+      .status(200)
+      .json(
+        new apiResponse(
+          200,
+          { videos: docs, pagingInfo },
+          "All Query Videos Sent Successfully"
         )
       );
   });
