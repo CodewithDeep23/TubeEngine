@@ -64,11 +64,13 @@ The frontend for this project is available in the following GitHub repository:
 
 ## 🧰 Tech Stack
 
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB + Mongoose
-- **Authentication**: JWT (JSON Web Tokens)
-- **Media Storage**: Cloudinary (for video/image handling)
-- **API Testing**: Postman
+- ⚛️ **Frontend**: React, Axios, React Router, Tailwind CSS  
+- 🛠️ **Backend**: Node.js, Express.js  
+- 🗄️ **Database**: MongoDB + Mongoose  
+- 🔐 **Authentication**: JWT (JSON Web Tokens)  
+- ☁️ **Media Storage**: Cloudinary (for video/image handling)  
+- 🧪 **API Testing**: Postman  
+- 🔧 **Backend Deployment**: Render 
 
 ---
 
