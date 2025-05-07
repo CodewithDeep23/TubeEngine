@@ -10,6 +10,7 @@
 |---------------------|----------------------------------------------------------------------|
 | 🧪 Postman Docs     | [View API Documentation](https://documenter.getpostman.com/view/39785896/2sB2izDt48) |
 | 🧠 DB Schema Model  | [Eraser Diagram](https://app.eraser.io/workspace/OJQXZCrbUtiEVt8QAo5G) |
+| 🚀 Live Frontend    | [View on Vercel](https://tube-mern-project.vercel.app/)              |
 
 ---
 
@@ -54,6 +55,12 @@
 - GET `/healthcheck` — returns `{ status: "Ok" }` to verify server health
 
 ---
+
+## 🌐 Frontend Repository
+
+The frontend for this project is available in the following GitHub repository:
+
+[Frontend GitHub Repository](https://github.com/CodewithDeep23/TubeEngine-Frontend)
 
 ## 🧰 Tech Stack
 
