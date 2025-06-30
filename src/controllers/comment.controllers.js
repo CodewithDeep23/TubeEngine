@@ -5,7 +5,6 @@ import { apiResponse } from "../utils/apiResponse.js";
 import { Comment } from "../models/comments.models.js";
 import { Video } from "../models/video.models.js";
 import { Like } from "../models/likes.models.js";
-import create from "prompt-sync";
 
 //TODO: get all comments for a video
 const getVideoComments = asyncHandler(async (req, res) => {
